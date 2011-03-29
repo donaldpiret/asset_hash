@@ -58,7 +58,7 @@ module AssetHash
       d = Digest::MD5.file(path).hexdigest
       path = path.gsub(path_prefix, '')
       extension = (path =~ /\.gz$/ ? File.extname(File.basename(path, ".gz")) + ".gz" : File.extname(path))
-      File.join File.dirname(path), "#{File.basename(path, extension)}-id-#{d}#{extension}"
+      File.join File.dirname(path), "#{File.basename(path, extension)}-#{d}#{extension}"
     end
 
     def self.original_path(path)
