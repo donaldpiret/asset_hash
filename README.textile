@@ -1,0 +1,44 @@
+h1. AssetHash
+
+h2. About
+
+AssetHash is a gem that allows you to easily generate unique paths for your static assets in order to avoid caching issues.
+Its main purpose is to allow you to use Amazon Cloudfront with a custom origin policy to serve your static assets easily.
+
+It uses an MD5 hash of your static asset to modify the filename, so only changed files will result in a different filename.
+
+It also comes with a rake task to automatically create hashed versions of your asset filenames, useful for deployments.
+
+h2. Usage
+
+Add the gem to your Gemfile
+
+<code>gem "asset_hash"</code>
+
+Set up a CloudFront distribution with a custom origin that points to your website's URL.
+
+Check the following website as well as the Amazon CloudFront documentation for help on setting up a custom origin CloudFront distribution:
+http://docs.amazonwebservices.com/AmazonCloudFront/latest/APIReference/index.html?DistributionConfigDatatype.html#CustomOriginChildElements
+
+Configure your environment file to use this CloudFront distribution as your asset host and the hashed filenames in the helpers.
+
+<pre><code>config.action_controller.asset_host = Proc.new do |source, request|
+  request.ssl? ? "https://distributionID.cloudfront.net" : "http://distributionID.cloudfront.net"
+end
+config.action_controller.asset_path = Proc.new do |source|
+  AssetHash.fingerprint(source)
+end
+</code></pre>
+
+Set up your deployment file (Capistrano, Chef callback or other) to run the included rake task on deploy
+
+<code>rake asset:hash:generate</code>
+
+This will copy all your assets from a path like <code>stylesheets/application.css</code> to something like <code>stylesheets/applications-234fe3b632356brdedf3115ee743250.css</code> and create a gzipped version as well at <code>stylesheets/applications-234fe3b632356brdedf3115ee743250.css.gz</code>
+This ensures that when CloudFront caches your static assets, it will always serve the up-to-date version.
+
+The code by default plays nice with Jammit by including the assets directory to the default images, javascripts and stylesheets directories, and you can customize which directories are scanned for assets using <code>AssetHash::Base.asset_paths = ['custom', 'directories']</code>
+
+h2. License
+
+This project rocks and uses MIT-LICENSE.
