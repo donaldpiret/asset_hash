@@ -3,7 +3,7 @@
 Gem::Specification.new do |s|
   s.name = "asset_hash"
   s.summary = "Asset hasher for Cloudfront custom origin domain asset hosting."
-  s.description = "This gem allows you to copy your static assets to a versions including a unique hash in the filename. By using this and modifying your Rails asset path you can easily serve static content on Cloudfront using the custom origin policy."
+  s.description = "This gem allows you to copy your static assets to include a unique hash in their filename. By using this and modifying your Rails asset path you can easily enable your Rails application to serve static content using CloudFront with a custom origin policy."
   s.files = Dir["{app,lib,config}/**/*"] + ["MIT-LICENSE", "Rakefile", "Gemfile", "README.textile"]
   s.version = "0.1"
 
