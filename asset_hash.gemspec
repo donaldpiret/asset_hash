@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
   s.name = "asset_hash"
   s.summary = "Asset hasher for Cloudfront custom origin domain asset hosting."
   s.description = "This gem allows you to copy your static assets to a versions including a unique hash in the filename. By using this and modifying your Rails asset path you can easily serve static content on Cloudfront using the custom origin policy."
-  s.files = Dir["{app,lib,config}/**/*"] + ["MIT-LICENSE", "Rakefile", "Gemfile", "README.rdoc"]
+  s.files = Dir["{app,lib,config}/**/*"] + ["MIT-LICENSE", "Rakefile", "Gemfile", "README.textile"]
   s.version = "0.1"
 
   if s.respond_to? :specification_version then
