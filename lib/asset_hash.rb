@@ -55,14 +55,17 @@ module AssetHash
 
     def self.fingerprint(path)
       path = File.join path_prefix, path unless path =~ /#{path_prefix}/
-      d = Digest::MD5.file(path).hexdigest
-      path = path.gsub(path_prefix, '')
-      extension = (path =~ /\.gz$/ ? File.extname(File.basename(path, ".gz")) + ".gz" : File.extname(path))
-      File.join File.dirname(path), "#{File.basename(path, extension)}-#{d}#{extension}"
+      begin
+        d = Digest::MD5.file(path).hexdigest
+        path = path.gsub(path_prefix, '')
+        extension = (path =~ /\.gz$/ ? File.extname(File.basename(path, ".gz")) + ".gz" : File.extname(path))
+        File.join File.dirname(path), "#{File.basename(path, extension)}-#{d}#{extension}"
+      rescue Errno::ENOENT
+        return original_path(path)#path.gsub(path_prefix, '')
+      end
     end
 
     def self.original_path(path)
-      path = File.join path_prefix, path unless path =~ /#{path_prefix}/
       path = path.gsub(path_prefix, '')
       extension = (path =~ /\.gz$/ ? File.extname(File.basename(path, ".gz")) + ".gz" : File.extname(path))
       File.join File.dirname(path), "#{File.basename(path, extension)}#{extension}"

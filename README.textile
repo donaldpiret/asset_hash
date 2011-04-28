@@ -17,7 +17,13 @@ Add the gem to your Gemfile
 
 Set up a CloudFront distribution with a custom origin that points to your website's URL.
 
-Check the following website as well as the Amazon CloudFront documentation for help on setting up a custom origin CloudFront distribution:
+There is a rake task included in the gem that guides you through creating CloudFront distribution easily, to run it just the following command from your app directory.
+
+<code>rake asset:hash:create_cloudfront_distribution</code>
+
+It is an interactive rake task that will ask you for your Amazon credentials and the domain you want to point the custom origin to.
+
+Alternatively you can check the following website as well as the Amazon CloudFront documentation for help on setting up a custom origin CloudFront distribution:
 http://docs.amazonwebservices.com/AmazonCloudFront/latest/APIReference/index.html?DistributionConfigDatatype.html#CustomOriginChildElements
 
 Configure your environment file to use this CloudFront distribution as your asset host and the hashed filenames in the helpers.

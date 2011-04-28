@@ -10,25 +10,38 @@ class AssetHashTest < ActiveSupport::TestCase
     assert_kind_of Module, AssetHash
   end
 
-  test "copies with asset_hash and gzips a css file" do
-    File.open(File.expand_path("../dummy/public/stylesheets/sample.css",  __FILE__), 'w') do |f|
+  test "AssetHash.process! in a rails app copies with asset_hash and gzips a css file" do
+    path = File.expand_path("../dummy/public/stylesheets/sample.css",  __FILE__)
+    File.open(path, 'w') do |f|
       f.write("#body {background-color: #000000;}")
     end
     AssetHash.process!
-    assert File.exists?(File.join(Rails.root, 'public', AssetHash::Base.fingerprint(File.expand_path("../dummy/public/stylesheets/sample.css",  __FILE__)))), "Could not find fingerprinted asset: #{AssetHash::Base.fingerprint(File.expand_path('../dummy/public/stylesheets/sample.css',  __FILE__))}"
-    finger_print_hash = AssetHash::Base.fingerprint(File.expand_path("../dummy/public/stylesheets/sample.css",  __FILE__)).match(/sample-id-([^\.]+)\./)[1]
-    puts "Fingerprint hash: #{finger_print_hash}"
-    assert File.exists?(File.join(Rails.root, 'public', AssetHash::Base.fingerprint(File.expand_path("../dummy/public/stylesheets/sample.css",  __FILE__)) + ".gz")), "Could not find gzipped fingerprinted asset"
-    #assert Dir.entries(File.join(Rails.root, 'public', 'stylesheets')).detect {|f| f.match /^sample-id-(.)+\.css\.gz$/ }, "Could not find gzipped fingerprinted asset"
+    assert File.exists?(File.join(Rails.root, 'public', AssetHash.fingerprint(path))), "Could not find fingerprinted asset: #{AssetHash.fingerprint(path)}"
+    assert File.exists?(File.join(Rails.root, 'public', AssetHash.fingerprint(path) + ".gz")), "Could not find gzipped fingerprinted asset"
   end
 
   test "copies images with asset_hash and does not gzip them" do
-    File.open(File.expand_path("../dummy/public/images/test.png",  __FILE__), 'w') do |f|
+    path = File.expand_path("../dummy/public/images/test.png",  __FILE__)
+    File.open(path, 'w') do |f|
       f.write(File.open(File.expand_path("../support/test.png",  __FILE__)))
     end
     AssetHash.process!
-    assert File.exists?(File.join(Rails.root, 'public', AssetHash::Base.fingerprint(File.expand_path("../dummy/public/images/test.png",  __FILE__)))), "Could not find fingerprinted asset"
-    assert !Dir.entries(File.join(Rails.root, 'public', 'images')).detect {|f| f.match /^test-id-(.)+\.png\.gz$/ }, "Image was gzipped"
+    assert File.exists?(File.join(Rails.root, 'public', AssetHash.fingerprint(path))), "Could not find fingerprinted asset"
+    assert !Dir.entries(File.join(Rails.root, 'public', 'images')).detect {|f| f.match /^test-(.)+\.png\.gz$/ }, "Image was gzipped"
+  end
+
+  test "the fingerprint method should return the filename with an asset hash inserted" do
+    path = File.expand_path("../dummy/public/stylesheets/sample.css",  __FILE__)
+    File.open(path, 'w') do |f|
+      f.write("#body {background-color: #000000;}")
+    end
+    md5_hash = Digest::MD5.file(path).hexdigest
+    finger_print = AssetHash::Base.fingerprint(path)
+    assert_equal finger_print, "/stylesheets/sample-#{md5_hash}.css"
+  end
+
+  test "the fingerprint method should fallback to the normal filename" do
+    assert_equal "/stylesheets/non-existing.css", AssetHash.fingerprint(File.expand_path("../dummy/public/stylesheets/non-existing.css",  __FILE__))
   end
 
   protected
