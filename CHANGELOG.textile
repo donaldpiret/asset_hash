@@ -1,0 +1,12 @@
+h1. AssetHash changes
+
+h2. 0.2
+- Fallback to original path if file not found to avoid failure
+- Fix the tests
+- Rake task to create a custom origin distribution
+
+h2. 0.1.1
+- Gemspec updates
+
+h2. 0.1
+- Initial version
