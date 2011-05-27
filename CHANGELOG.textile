@@ -1,5 +1,9 @@
 h1. AssetHash changes
 
+h2. 0.2.1
+- Improve the Rake task to allow for selection of Origin Policy
+- Improve the Rake task by providing better instructions and outputting the distribution domain
+
 h2. 0.2
 - Fallback to original path if file not found to avoid failure
 - Fix the tests
