@@ -21,6 +21,19 @@ namespace :asset do
         secret_access_key = STDIN.gets.strip
         STDOUT.puts "Enter the url of the domain to distribute on cloudfront (eg. google.com)"
         cloudfront_distribution_url = STDIN.gets.strip
+        origin_protocol = nil
+        while origin_protocol == nil do
+          STDOUT.puts "What type of Origin Protocol Policy would you like for your distribution"
+          STDOUT.puts "(type one of 'match-viewer' or 'http-only', or leave blank for match-viewer)"
+          input = STDIN.gets.strip.downcase
+          if input == 'match-viewer' || input == 'http-only'
+            origin_protocol = input
+          elsif input == ""
+            origin_protocol = 'match-viewer'
+          else
+            STDOUT.puts "Invalid input received: #{input.inspect}"
+          end
+        end
         STDOUT.puts "Enter a description for your cloudfront distribution"
         cloudfront_distribution_description = STDIN.gets.strip
         AWS::S3::Base.establish_connection!(
@@ -40,7 +53,7 @@ namespace :asset do
 <DistributionConfig xmlns="http://cloudfront.amazonaws.com/doc/2010-11-01/">
 <CustomOrigin>
 <DNSName>#{cloudfront_distribution_url}</DNSName>
-<OriginProtocolPolicy>http-only</OriginProtocolPolicy>
+<OriginProtocolPolicy>#{origin_protocol}</OriginProtocolPolicy>
 </CustomOrigin>
 <Comment>#{cloudfront_distribution_description}</Comment>
 <Enabled>true</Enabled>
@@ -51,7 +64,19 @@ EOF
         http.use_ssl = true
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
         res = http.request(req)
-        STDOUT.puts res.code == '201' ? "Distribution created: #{res.body.match(/\<Id\>(.+)\<\/Id\>/)[1]}" : "Distribution failed: #{res.body}"
+        if res.code == '201'
+          distribution_id = res.body.match(/\<Id\>(.+)\<\/Id\>/)[1]
+          distribution_domain = res.body.match(/\<DomainName>(.+)<\/DomainName>/)[1]
+          STDOUT.puts "Distribution created: #{distribution_id} with domain #{distribution_domain}"
+          STDOUT.puts ""
+          STDOUT.puts "Please paste the following in your config/production.rb:"
+          STDOUT.puts ""
+          STDOUT.puts "config.action_controller.asset_host = Proc.new do |source, request|"
+          STDOUT.puts "  request.ssl? ? 'https://#{distribution_domain}' : 'http://#{distribution_domain}'"
+          STDOUT.puts "end"
+        else
+          STDOUT.puts "Distribution failed: #{res.body}"
+        end
       rescue LoadError => e
         STDERR.puts "Could not find the aws-s3 gem, Run `gem install aws-s3` to install s3"
       end
