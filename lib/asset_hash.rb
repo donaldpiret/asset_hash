@@ -1,7 +1,7 @@
 require 'digest/md5'
 require 'time'
 require 'mime/types'
-require 'asset_hash/railtie' if defined?(Rails)
+require 'asset_hash/railtie' if defined?(Rails::Railtie)
 
 module AssetHash
   def self.process!
