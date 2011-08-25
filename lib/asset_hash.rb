@@ -28,7 +28,7 @@ module AssetHash
     end
 
     def self.path_prefix
-      File.join Rails.root, 'public'
+      defined?(Rails) ? File.join(Rails.root, 'public') : ''
     end
 
     def self.asset_paths=(paths)
