@@ -53,10 +53,10 @@ module AssetHash
       }
     end
 
-    def self.fingerprint(path)
+    def self.fingerprint(path, original_path = nil)
       path = File.join path_prefix, path unless path =~ /#{path_prefix}/
       begin
-        d = Digest::MD5.file(path).hexdigest
+        d = Digest::MD5.file(original_path || path).hexdigest
         path = path.gsub(path_prefix, '')
         extension = (path =~ /\.gz$/ ? File.extname(File.basename(path, ".gz")) + ".gz" : File.extname(path))
         File.join File.dirname(path), "#{File.basename(path, extension)}-#{d}#{extension}"
